@@ -51,7 +51,20 @@ public class MovementService {
                 book.setAvailable(false);
             }
         } else {
+
+            var lastMove = movementRepository.findTopByLectorIdOrderByTimestampDesc(lector.getId());
+            if (lastMove.isEmpty()) {
+                throw new RuntimeException("No has prestado este libro");
+            }
+
+            if (lastMove.get().getType() != MovementType.BORROWING) {
+                throw new RuntimeException("No has prestado este libro");
+            }
+
             book.setAvailableCount(book.getAvailableCount() + 1);
+            if (book.getAvailableCount() != 0) {
+                book.setAvailable(true);
+            }
         }
 
         bookRepository.save(book);
